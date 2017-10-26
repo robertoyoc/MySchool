@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="mx.com.talentics.myschool.layouts.newprofesor">
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nuevo Profesor"
+        android:textSize="24sp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="8dp" />
+
+    <LinearLayout
+        android:layout_width="368dp"
+        android:layout_height="458dp"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        tools:layout_editor_absoluteX="9dp">
+
+        <EditText
+            android:id="@+id/ptxt_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Nombre"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/ptxt_appat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Apellido Paterno"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/ptxt_apmat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Apellido Materno"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/ptxt_fechanac"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Fecha de Nacimiento"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/ptxt_curp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Curp"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/ptxt_rfc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="RFC"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/btn_addprofesor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Agregar" />
+
+        <Button
+            android:id="@+id/btn_act"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Actualizar" />
+
+        <Button
+            android:id="@+id/btn_borrar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Borrar" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
