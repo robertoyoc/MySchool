@@ -66,10 +66,9 @@ public class materias extends AppCompatActivity {
                             String key = data.getKey();
                             intent.putExtra("key", key);
                             startActivity(intent);
-                            materias.this.finish();
                         }
                     });
-                    b.setText(mat.getNombre()+" " + mat.getPeriodo() + " " + String.valueOf(mat.getGpo()));
+                    b.setText(mat.getNombre()+"-" + mat.getPeriodo() + " Grupo-" + String.valueOf(mat.getGpo()));
                     b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
                     tr.addView(b);
                     tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));

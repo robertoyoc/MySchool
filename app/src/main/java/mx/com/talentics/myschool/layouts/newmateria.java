@@ -23,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import mx.com.talentics.myschool.R;
 import mx.com.talentics.myschool.models.Element;
@@ -35,8 +36,10 @@ public class newmateria extends AppCompatActivity {
     public Button mbtn_actualizar;
     public Button mbtn_borrar;
     public EditText mtxt_nombre, mtxt_periodo;
+    public int mat;
 
     public String key;
+    public String SelectedItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +55,42 @@ public class newmateria extends AppCompatActivity {
         mbtn_borrar = (Button) findViewById(R.id.mbtn_borrar);
 
         final ArrayList<String> arrayspn = new ArrayList<String>();
+        Intent intent = getIntent();
+        key = intent.getStringExtra("key");
 
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        Query isExisting = mDatabase.child("profesores").orderByChild("ap_pat");
+        final Context cntx = this;
+        final ArrayList<Element> profesores = new ArrayList<Element>();
+
+        isExisting.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                arrayspn.clear();
+                for (final DataSnapshot data : dataSnapshot.getChildren()) {
+                    Profesor prof = data.getValue(Profesor.class);
+                    Element cr_prof = new Element();
+
+                    cr_prof.key = data.getKey();
+                    cr_prof.obj = prof;
+                    profesores.add(cr_prof);
+                    arrayspn.add(prof.getAp_pat() + " " + prof.getNombre());
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(cntx,
+                        android.R.layout.simple_spinner_item, arrayspn);
+                spn.setAdapter(adapter);
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
 
 
         if(key==" "||key==null){
@@ -66,14 +102,28 @@ public class newmateria extends AppCompatActivity {
             mbtn_new.setVisibility(View.INVISIBLE);
             mbtn_borrar.setVisibility(View.VISIBLE);
             mbtn_actualizar.setVisibility(View.VISIBLE);
-            Query isExisting = mDatabase.child("materias").child(key);
-            isExisting.addValueEventListener(new ValueEventListener() {
+            Query isExistings = mDatabase.child("materias").child(key);
+            isExistings.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         Materia mat = dataSnapshot.getValue(Materia.class);
                         mtxt_nombre.setText(mat.getNombre());
                         mtxt_periodo.setText(mat.getPeriodo());
+                        for (DataSnapshot child: dataSnapshot.child("profesores").getChildren()) {
+                            String thekey = child.getKey();
+                            int idex=0;
+                            for (Element e:profesores) {
+                                String elementkey = e.key;
+                                if(thekey.equals(elementkey)){
+                                    spn.setSelection(idex);
+
+                                }
+                                idex++;
+
+                            }
+
+                        }
 
                     }
                 }
@@ -87,38 +137,6 @@ public class newmateria extends AppCompatActivity {
         }
 
 
-        Query isExisting = mDatabase.child("profesores").orderByChild("ap_pat");
-
-        final ArrayList<Element> profesores = new ArrayList<Element>();
-
-        isExisting.addValueEventListener(new ValueEventListener() {
-             @Override
-             public void onDataChange(DataSnapshot dataSnapshot) {
-                 arrayspn.clear();
-                 for (final DataSnapshot data : dataSnapshot.getChildren()) {
-                     Profesor prof = data.getValue(Profesor.class);
-                     Element cr_prof = new Element();
-
-                     cr_prof.key = data.getKey();
-                     cr_prof.obj = prof;
-                     profesores.add(cr_prof);
-                     arrayspn.add(prof.getAp_pat() + " " + prof.getNombre());
-                 }
-
-
-             }
-
-             @Override
-             public void onCancelled(DatabaseError databaseError) {
-
-             }
-
-         });
-
-        final Spinner spn = (Spinner) findViewById(R.id.spn_profesor);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, arrayspn);
-        spn.setAdapter(adapter);
 
 
 
@@ -127,6 +145,7 @@ public class newmateria extends AppCompatActivity {
         mbtn_new.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mat =1;
                 DatabaseReference mDatabase;
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 Query isExisting = mDatabase.child("materias").orderByChild("nombre").equalTo(mtxt_nombre.getText().toString());
@@ -134,99 +153,61 @@ public class newmateria extends AppCompatActivity {
                 isExisting.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            // dataSnapshot is the "issue" node with all children with id 0
-                            int mat =0;
-                            for (DataSnapshot data : dataSnapshot.getChildren()) {
-                                Materia materia = data.getValue(Materia.class);
+                        if(mtxt_nombre.getText().toString().trim().equals("")) {
+                            Context context = getApplicationContext();
+                            String text= "Nombre es requerido!";
+                            int duration = Toast.LENGTH_SHORT;
 
-                                Context context = getApplicationContext();
-                                String text = "Materia ya se encuentra registrada!";
-                                int duration = Toast.LENGTH_SHORT;
-
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();
-                                mat++;
-                            }
-
-                            DatabaseReference mDatabase;
-
-                            if(mtxt_nombre.getText().toString().trim().equals("")) {
-                                Context context = getApplicationContext();
-                                String text = "Nombre es requerido!";
-                                int duration = Toast.LENGTH_SHORT;
-
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();
-                            }else{
-                                mDatabase = FirebaseDatabase.getInstance().getReference();
-                                String key = mDatabase.child("materias").push().getKey();
-                                mat++;
-
-                                Materia mater = new Materia();
-                                mater.setNombre(mtxt_nombre.getText().toString());
-                                mater.setPeriodo(mtxt_periodo.getText().toString());
-                                mater.setGpo(mat);
-
-                                mDatabase.child("materias").child(key).setValue(mater);
-
-                                for(Element e: profesores) {
-                                    Profesor prof = (Profesor) e.obj;
-                                    if (prof.getAp_pat() + " " + prof.getNombre() == spn.getSelectedItem().toString()) {
-                                        Map<String, Object> childUpdates = new HashMap<>();
-
-                                        HashMap<String, Object> result = new HashMap<>();
-                                        result.put(e.key, true);
-                                        childUpdates.put("/materias/" + key, result);
-                                        mDatabase.updateChildren(childUpdates);
-                                    }
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }else{
+                            if(dataSnapshot.exists()){//existe la materia
+                                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                                    mat++; //agregando para poner el grupo adecuado
                                 }
 
-                                Context context = getApplicationContext();
-                                CharSequence text = "Materia agregada!";
-                                int duration = Toast.LENGTH_SHORT;
-
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();
-                                Intent intent = new Intent(context, materias.class);
-                                startActivity(intent);
-                                newmateria.this.finish();
-
                             }
-                        }
-                        else{
+
                             DatabaseReference mDatabase;
                             mDatabase = FirebaseDatabase.getInstance().getReference();
-                            String key = mDatabase.child("materias").push().getKey();
+                            String newkey = mDatabase.child("materias").push().getKey();
 
                             Materia mater = new Materia();
                             mater.setNombre(mtxt_nombre.getText().toString());
                             mater.setPeriodo(mtxt_periodo.getText().toString());
-                            mater.setGpo(1);
+                            mater.setGpo(mat);
 
-                            mDatabase.child("materias").child(key).setValue(mater);
+                            mDatabase.child("materias").child(newkey).setValue(mater);
 
                             for(Element e: profesores) {
-                                Profesor prof = (Profesor) e.obj;
-                                if (prof.getAp_pat() + " " + prof.getNombre() == spn.getSelectedItem().toString()) {
-                                    Map<String, Object> childUpdates = new HashMap<>();
 
+                                Profesor prof = (Profesor) e.obj;
+                                if (Objects.equals(prof.getAp_pat() + " " + prof.getNombre(), spn.getSelectedItem().toString())) {
+
+                                    Map<String, Object> childUpdates = new HashMap<>();
                                     HashMap<String, Object> result = new HashMap<>();
                                     result.put(e.key, true);
-                                    childUpdates.put("/materias/" + key, result);
+                                    childUpdates.put("/materias/" + newkey + "/profesores", result);
                                     mDatabase.updateChildren(childUpdates);
                                 }
                             }
 
                             Context context = getApplicationContext();
-                            CharSequence text = "Materia agregada!";
+                            String text = "Materia creada";
                             int duration = Toast.LENGTH_SHORT;
 
                             Toast toast = Toast.makeText(context, text, duration);
                             toast.show();
-                            Intent intent = new Intent(context, materias.class);
+
+
+                            Intent intent = new Intent(getApplicationContext(), materias.class);
                             startActivity(intent);
                             newmateria.this.finish();
+
+
+
+
+
                         }
                     }
 
@@ -242,6 +223,68 @@ public class newmateria extends AppCompatActivity {
 
 
 
+            }
+        });
+        mbtn_actualizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatabaseReference mDatabase;
+                mDatabase = FirebaseDatabase.getInstance().getReference().child("materias").child(key);
+
+                    if (mtxt_nombre.getText().toString().trim().equals("")) {
+                        Context context = getApplicationContext();
+                        String text = "Nombre es requerido!";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    } else {
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        map.put("nombre", mtxt_nombre.getText().toString());
+                        map.put("periodo", mtxt_periodo.getText().toString());
+
+                        mDatabase.updateChildren(map);
+
+                        for (Element e : profesores) {
+                            Profesor prof = (Profesor) e.obj;
+                                if (Objects.equals(prof.getAp_pat() + " " + prof.getNombre(), spn.getSelectedItem().toString())) {
+                                    Map<String, Object> childUpdates = new HashMap<>();
+
+                                    HashMap<String, Object> result = new HashMap<>();
+                                    result.put(e.key, true);
+                                    childUpdates.put( "/profesores", result);
+                                    mDatabase.updateChildren(childUpdates);
+                                }
+
+                        }
+                        Context context = getApplicationContext();
+                        String text = "Campos Actualizados";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                        Intent intent = new Intent(getApplicationContext(), materias.class);
+                        startActivity(intent);                                              
+                    }   newmateria.this.finish();
+
+            }
+        });
+
+        mbtn_borrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), materias.class);
+                startActivity(intent);
+                newmateria.this.finish();
+                DatabaseReference mDatabase;
+                mDatabase = FirebaseDatabase.getInstance().getReference();
+                mDatabase.child("materias").child(key).removeValue();
+                Context context = getApplicationContext();
+                String text = "Materia borrada";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
             }
         });
 
