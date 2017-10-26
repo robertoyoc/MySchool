@@ -28,6 +28,7 @@ public class index extends AppCompatActivity {
 
         Button m_materias = (Button) findViewById(R.id.btn_materias);
         Button m_profesores = (Button) findViewById(R.id.btn_profesores);
+        Button m_alumnos = (Button) findViewById(R.id.btn_alumnos);
 
 
         m_materias.setOnClickListener(new View.OnClickListener() {
@@ -42,6 +43,13 @@ public class index extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(cont, profesores.class);
+                startActivity(intent);
+            }
+        });
+        m_alumnos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(cont, alumnos.class);
                 startActivity(intent);
             }
         });
