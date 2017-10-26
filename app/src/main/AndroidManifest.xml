@@ -19,7 +19,9 @@
         <activity android:name=".layouts.materias" />
         <activity android:name=".layouts.newmateria" />
         <activity android:name=".layouts.newprofesor" />
-        <activity android:name=".layouts.profesores"></activity>
+        <activity android:name=".layouts.profesores" />
+        <activity android:name=".layouts.alumnos" />
+        <activity android:name=".layouts.newalumno"></activity>
     </application>
 
 </manifest>
